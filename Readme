@@ -1,0 +1,46 @@
+/*
+Theodor STOICAN
+333CA
+Tema3-APD
+*/
+
+Tema3 a fost, de departe, cea mai interesanta tema de la APD. Am invatat mult mai
+bine cum sa lucrez cu MPI (d.p.d.v. al implementarii), dar si conceptual, intrucat
+am avut ocazia sa implementez efectiv ceea ce am invatat la curs. O sa redau, in
+cele de mai jos, cateva detalii de implementare:
+
+*Ca algoritm unda, am folosit algoritmul ecou pentru determinarea topologiei. 
+In cadrul algoritmului am nevoie sa primesc si un token si rank-ul sursei, 
+asa incat, in loc sa trimit 2 mesaje, unul cu token-ul si unul cu rank-ul, 
+ma folosesc de statusul de la MPI_Recv : folosesc o variabila de tip MPI_Status
+(in loc de MPI_STATUS_IGNORE) si imi extrag sursa din variabila stat(stat.MPI_SOURCE).
+Dupa aplicarea algoritmului ecou (atat pentru procesul cu rank-ul 0, cat si pentru
+celelalte), voi obtine, in cadrul fiecarui proces, atat rank-ul procesului parinte,
+cat si rank-urile proceselor copii (am creat 2 functii aferente algoritmului: 
+echoAlgorithmInitiator si echoAlgorithmOther). De la acest punct incolo, voi implementa
+efectiv algoritmul Heartbeat pentru impartirea liniilor unei imagini in mod egal intre 
+copii. 
+*Am implementat logica aferenta algoritmului Heartbeat in main, cu cazuri separate 
+pentru nod intern, radacina si frunza. De asemenea, mi-am creat o structura auxiliara,
+pgm, in care retin imaginea, respectiv imaginea dupa aplicarea filtrelor. De asemenea,
+pastrez in filters.c implementarea efectiva a filtrelor. Cand realizez trimiterea
+catre procesele copii, am grija sa trimit blocul respectiv de pixeli, cele 2 granite,
+dar si tipul de filtru, care se va propaga pana la nodurile frunza. Pastrez, la 
+nivelul proceselor frunza cate o variabila (num_processed_lines), pe care, dupa 
+primirea tagului de terminare (mesaje normale se trimit cu tag 1, cele de anuntare
+a terminarii cu tag 2), le trimit inapoi, catre procesele de tip parinte.
+*Una dintre problemele cele mai mari pe care le-am intampinat a fost citirea si scrierea
+intr-un fisier de tip pgm. Dupa ce am citit cateva tutoriale pe internet, am incercat
+sa scriu cu fputc() pixelii in fisier si sa nu mai scriu comentariile. Bad idea ! 
+Cand am rulat diff intre imaginea din ref-ul testului si imaginea rezultata de pe
+urma rularii programului meu, existau diferente(foarte multe). Prin urmare, am deschis
+fisierul ref in gedit sa vad cum sunt asezati pixelii pentru a-i printa in aceeasi mod
+si in cadrul programului meu. De asemenea, antetul fisierului (dimensiuni, comentarii
+et al.) sunt citite cu fread, dupa care stocate in campul comments al structurii pgm.
+De acolo, dupa realizarea filtrarii, le printez asa cum sunt in fisierul aferent, pentru
+a nu mai avea probleme.
+
+Pe scurt, cam astea sunt cele mai relevante detalii si potentialele probleme de care
+m-am lovit. Per total, a fost o tema foarte faina.
+
+Theodor
